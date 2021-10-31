@@ -35,7 +35,7 @@ type MetaData struct {
 const location = "./content/post"
 
 func main() {
-	AddHugoHeader(location)
+	// AddHugoHeader(location)
 	CreateIndex(location)
 }
 
@@ -75,7 +75,6 @@ func AddHugoHeader(pos string) {
 			URL:        url})
 		return nil
 	})
-
 }
 
 func writeHeader(file string, meta MetaData) {
@@ -94,6 +93,18 @@ func writeHeader(file string, meta MetaData) {
 	f.Close()
 }
 
+const readmeHeader = `# Blog
+
+support by 
+* [hugo](https://gohugo.io)
+* [utteranc](https://utteranc.es)
+* [firebase](https://firebase.google.com)
+
+
+## Index
+
+`
+
 // CreateIndex creates a index for all articles.
 func CreateIndex(pos string) {
 	f, err := os.OpenFile("README.md", os.O_CREATE|os.O_TRUNC|os.O_APPEND|os.O_RDWR, 0644)
@@ -102,9 +113,11 @@ func CreateIndex(pos string) {
 	}
 	defer f.Close()
 
-	f.Write([]byte("## Index\n\n"))
+	// 写入固定的header
+	f.Write([]byte(readmeHeader))
+
 	filepath.WalkDir(pos, func(path string, d fs.DirEntry, err error) error {
-		if path == "./" {
+		if path == "./content/post" {
 			return nil
 		}
 		if d.IsDir() {
@@ -116,7 +129,7 @@ func CreateIndex(pos string) {
 
 func appendIndex(f *os.File, path string) {
 	urls := strings.Split(path, "/")
-	f.Write([]byte("#### " + urls[len(urls)-1] + "\n"))
+	f.Write([]byte("### " + urls[len(urls)-1] + "\n"))
 	filepath.WalkDir(path, func(path string, d fs.DirEntry, err error) error {
 		if d.IsDir() {
 			return nil
