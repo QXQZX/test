@@ -1,0 +1,671 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
+
+    <title>Smart Pointer | devhg&#39;s blog</title>
+    <meta property="og:title" content="Smart Pointer - devhg&#39;s blog">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content='2021-10-31T15:33:30&#43;08:00'>
+        
+        
+    <meta property="article:modified_time" content='2021-10-31T15:33:30&#43;08:00'>
+        
+    <meta name="Keywords" content="golang,go语言,go语言笔记,devhg,java,博客,python,软件架构">
+    <meta name="description" content="Smart Pointer">
+        
+    <meta name="author" content="devhg">
+    <meta property="og:url" content="https://devhg-blog.web.app/c&#43;&#43;/smart-pointer.html">
+    <link rel="shortcut icon" href='/favicon.ico'  type="image/x-icon">
+
+    <link rel="stylesheet" href='/css/normalize.css'>
+    <link rel="stylesheet" href='/css/style.css'>
+    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+    
+    
+    
+    
+    
+        <link rel="stylesheet" href='/css/douban.css'>
+    
+        <link rel="stylesheet" href='/css/other.css'>
+    
+</head>
+
+
+<body>
+    <header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="https://devhg-blog.web.app">
+                        devhg&#39;s blog
+                    </a>
+                
+                <p class="description">Golang, Cloud Native, Container</p>
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="https://devhg-blog.web.app">首页</a>
+                    
+                    <a  href="https://devhg-blog.web.app/archives/" title="归档">归档</a>
+                    
+                    <a  href="https://devhg-blog.web.app/about/" title="关于">关于</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <div id="body">
+        <div class="container">
+            <div class="col-group">
+
+                <div class="col-8" id="main">
+                    
+<div class="res-cons">
+    <style type="text/css">
+    .post-toc {
+        position: fixed;
+        width: 200px;
+        margin-left: -210px;
+        padding: 5px 10px;
+        font-family: Athelas, STHeiti, Microsoft Yahei, serif;
+        font-size: 12px;
+        border: 1px solid rgba(0, 0, 0, .07);
+        border-radius: 5px;
+        background-color: rgba(255, 255, 255, 0.98);
+        background-clip: padding-box;
+        -webkit-box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        word-wrap: break-word;
+        white-space: nowrap;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        z-index: 999;
+        cursor: pointer;
+        max-height: 70%;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .post-toc .post-toc-title {
+        width: 100%;
+        margin: 0 auto;
+        font-size: 20px;
+        font-weight: 400;
+        text-transform: uppercase;
+        text-align: center;
+    }
+
+    .post-toc .post-toc-content {
+        font-size: 15px;
+    }
+
+    .post-toc .post-toc-content>nav>ul {
+        margin: 10px 0;
+    }
+
+    .post-toc .post-toc-content ul {
+        padding-left: 20px;
+        list-style: square;
+        margin: 0.5em;
+        line-height: 1.8em;
+    }
+
+    .post-toc .post-toc-content ul ul {
+        padding-left: 15px;
+        display: none;
+    }
+
+    @media print,
+    screen and (max-width:1057px) {
+        .post-toc {
+            display: none;
+        }
+    }
+</style>
+<div class="post-toc" style="position: absolute; top: 188px;">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#1-下面是一个不适合使用auto_ptr的示例">1 下面是一个不适合使用auto_ptr的示例：</a></li>
+        <li><a href="#2-如果使用shared_ptr替换auto_ptr则程序将正常运行">2 如果使用shared_ptr替换auto_ptr，则程序将正常运行。</a></li>
+        <li><a href="#3-如果使用unique_ptr替换auto_ptr">3 如果使用unique_ptr替换auto_ptr</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var postToc = $(".post-toc");
+        if (postToc.length) {
+            var leftPos = $("#main").offset().left;
+            if(leftPos<220){
+                postToc.css({"width":leftPos-10,"margin-left":(0-leftPos)})
+            }
+
+            var t = postToc.offset().top - 20,
+                a = {
+                    start: {
+                        position: "absolute",
+                        top: t
+                    },
+                    process: {
+                        position: "fixed",
+                        top: 20
+                    },
+                };
+            $(window).scroll(function () {
+                var e = $(window).scrollTop();
+                e < t ? postToc.css(a.start) : postToc.css(a.process)
+            })
+        }
+    })
+</script>
+    <article class="post">
+        <header>
+            <h1 class="post-title">Smart Pointer</h1>
+        </header>
+        <date class="post-meta meta-date">
+            2021年10月31日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='/categories/c&#43;&#43;'>c&#43;&#43;</a></span>
+            
+        </div>
+        
+        
+        <div class="post-meta">
+            <span id="busuanzi_container_page_pv">|<span id="busuanzi_value_page_pv"></span><span>
+                    阅读</span></span>
+        </div>
+        
+        
+        <div class="clear" style="display: none">
+            <div class="toc-article">
+                <div class="toc-title">文章目录</div>
+            </div>
+        </div>
+        
+        <div class="post-content">
+            <h1 id="智能指针auto_ptrunique_ptrshared_ptr区别">智能指针auto_ptr、unique_ptr、shared_ptr区别</h1>
+<p>模板auto_ptr是C++98提供的解决方案，C++11已摒弃。</p>
+<p>模板unique_ptr、shared_ptr是C++11提供的解决方案.</p>
+<p>为什么要摒弃auto_ptr呢？</p>
+<p>先来看下面的赋值语句：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c++" data-lang="c++"><span style="color:#000">auto_ptr</span>&lt;<span style="color:#000">string</span>&gt; <span style="color:#000">ps</span>(<span style="color:#00f">new</span> <span style="color:#000">string</span>(<span style="color:#5a2">&#34;I am a boy.&#34;</span>));
+<span style="color:#000">auto_ptr</span>&lt;<span style="color:#000">stirng</span>&gt; <span style="color:#000">vocation</span>;
+<span style="color:#000">vocation</span> = <span style="color:#000">ps</span>;
+</code></pre></td></tr></table>
+</div>
+</div><p>上述赋值语句将完成什么工作呢？如果ps和vocation是常规指针，则两个指针将指向同一个string对象。这是不能接受的，因为程序将试图删除同一个对象两次&ndash;一次是ps过期时，一次是vocation过期时。要避免这种问题，方法有多种。</p>
+<ul>
+<li>定义赋值运算符，使之执行深赋值。这样两个指针将指向不同的对象，其中的一个对象是另一个对象的副本。</li>
+<li>建立所有权（ownership）概念，对于特定的对象，只能有一个智能指针可拥有它，这样只能拥有对象的智能指针的构造函数会删除该对象。然后，让赋值操作转让所有权。这就是用于auto_ptr和unique_ptr的策略，但<strong>unique_ptr</strong>的策略更严格。</li>
+<li>创建智能更高的指针，跟踪引用特定对象的智能指针数。这称为引用计数（reference counting）。例如，赋值时，计数将加1，而指针过期时，计数将减1。仅当最后一个指针过期时，才调用delete。这是<strong>shared_ptr</strong>采用的策略。</li>
+</ul>
+<p>每种方法都有其用途，</p>
+<h3 id="1-下面是一个不适合使用auto_ptr的示例">1 下面是一个不适合使用auto_ptr的示例：</h3>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#888;font-style:italic">#include</span> <span style="color:#888;font-style:italic">&lt;iostream&gt;</span><span style="color:#888;font-style:italic">
+</span><span style="color:#888;font-style:italic">#include</span> <span style="color:#888;font-style:italic">&lt;string&gt;</span><span style="color:#888;font-style:italic">
+</span><span style="color:#888;font-style:italic">#include</span> <span style="color:#888;font-style:italic">&lt;memory&gt;</span><span style="color:#888;font-style:italic">
+</span><span style="color:#888;font-style:italic"></span>
+<span style="color:#00f">using</span> <span style="color:#00f">namespace</span> <span style="color:#000">std</span>;
+
+<span style="color:#00f">int</span> <span style="color:#000">main</span>()
+{
+    <span style="color:#000">auto_ptr</span>&lt;<span style="color:#000">string</span>&gt; <span style="color:#000">films</span>[<span style="color:#3af">5</span>] =
+    {
+        <span style="color:#000">auto_ptr</span>&lt;<span style="color:#000">string</span>&gt; (<span style="color:#00f">new</span> <span style="color:#000">string</span>(<span style="color:#5a2">&#34;one&#34;</span>)),
+        <span style="color:#000">auto_ptr</span>&lt;<span style="color:#000">string</span>&gt; (<span style="color:#00f">new</span> <span style="color:#000">string</span>(<span style="color:#5a2">&#34;two&#34;</span>)),
+        <span style="color:#000">auto_ptr</span>&lt;<span style="color:#000">string</span>&gt; (<span style="color:#00f">new</span> <span style="color:#000">string</span>(<span style="color:#5a2">&#34;three&#34;</span>)),
+        <span style="color:#000">auto_ptr</span>&lt;<span style="color:#000">string</span>&gt; (<span style="color:#00f">new</span> <span style="color:#000">string</span>(<span style="color:#5a2">&#34;four&#34;</span>)),
+        <span style="color:#000">auto_ptr</span>&lt;<span style="color:#000">string</span>&gt; (<span style="color:#00f">new</span> <span style="color:#000">string</span>(<span style="color:#5a2">&#34;five&#34;</span>))
+    };
+    <span style="color:#000">auto_ptr</span>&lt;<span style="color:#000">string</span>&gt; <span style="color:#000">pwin</span>;
+    <span style="color:#000">pwin</span> = <span style="color:#000">films</span>[<span style="color:#3af">2</span>];  <span style="color:#888;font-style:italic">// films[2] lose ownership
+</span><span style="color:#888;font-style:italic"></span>
+    <span style="color:#000">cout</span> &lt;&lt; <span style="color:#5a2">&#34;films data is: &#34;</span> &lt;&lt; <span style="color:#000">endl</span>;
+    <span style="color:#00f">for</span>(<span style="color:#000">auto_ptr</span>&lt;<span style="color:#000">string</span>&gt; <span style="color:#000">s</span> : <span style="color:#000">films</span>)
+        <span style="color:#000">cout</span> &lt;&lt; *<span style="color:#000">s</span> &lt;&lt; <span style="color:#000">endl</span>;
+    <span style="color:#000">cout</span> &lt;&lt; <span style="color:#5a2">&#34;pwin: &#34;</span> &lt;&lt; *<span style="color:#000">pwin</span> &lt;&lt; <span style="color:#000">endl</span>;
+
+    <span style="color:#00f">return</span> <span style="color:#3af">0</span>;
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>下面是该程序的输出：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#000">films</span> <span style="color:#000">data</span> <span style="color:#000">is</span>:
+<span style="color:#000">one</span>
+<span style="color:#000">two</span>
+
+<span style="color:#000">Process</span> <span style="color:#000">returned</span> -<span style="color:#3af">1073741819</span> (<span style="color:#3af">0xC0000005</span>)   <span style="color:#000">execution</span> <span style="color:#000">time</span> : <span style="color:#3af">1.659</span> <span style="color:#000">s</span>
+<span style="color:#000">Press</span> <span style="color:#000">any</span> <span style="color:#000">key</span> <span style="color:#000">to</span> <span style="color:#00f">continue</span>.
+</code></pre></td></tr></table>
+</div>
+</div><p>错误的使用auto_ptr可能导致问题（这种代码的行为是不确定的，其行为可能随系统而异）。这里的问题在于，下面的语句将所有权从films[2]转让给pwin：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-text" data-lang="text">pwin = films[2];  // films[2] lose ownership
+</code></pre></td></tr></table>
+</div>
+</div><p>这导致films[2]不再引用该字符串。在auto_ptr放弃对象的所有权后，边可能使用它来访问该对象。当程序打印films[2]指向的字符串时，却发现这是一个空指针，因此发生错误。</p>
+<h3 id="2-如果使用shared_ptr替换auto_ptr则程序将正常运行">2 如果使用shared_ptr替换auto_ptr，则程序将正常运行。</h3>
+<p>示例代码：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#888;font-style:italic">#include</span> <span style="color:#888;font-style:italic">&lt;iostream&gt;</span><span style="color:#888;font-style:italic">
+</span><span style="color:#888;font-style:italic">#include</span> <span style="color:#888;font-style:italic">&lt;string&gt;</span><span style="color:#888;font-style:italic">
+</span><span style="color:#888;font-style:italic">#include</span> <span style="color:#888;font-style:italic">&lt;memory&gt;</span><span style="color:#888;font-style:italic">
+</span><span style="color:#888;font-style:italic"></span>
+<span style="color:#00f">using</span> <span style="color:#00f">namespace</span> <span style="color:#000">std</span>;
+
+<span style="color:#00f">int</span> <span style="color:#000">main</span>()
+{
+    <span style="color:#000">shared_ptr</span>&lt;<span style="color:#000">string</span>&gt; <span style="color:#000">films</span>[<span style="color:#3af">5</span>] =
+    {
+        <span style="color:#000">shared_ptr</span>&lt;<span style="color:#000">string</span>&gt; (<span style="color:#00f">new</span> <span style="color:#000">string</span>(<span style="color:#5a2">&#34;one&#34;</span>)),
+        <span style="color:#000">shared_ptr</span>&lt;<span style="color:#000">string</span>&gt; (<span style="color:#00f">new</span> <span style="color:#000">string</span>(<span style="color:#5a2">&#34;two&#34;</span>)),
+        <span style="color:#000">shared_ptr</span>&lt;<span style="color:#000">string</span>&gt; (<span style="color:#00f">new</span> <span style="color:#000">string</span>(<span style="color:#5a2">&#34;three&#34;</span>)),
+        <span style="color:#000">shared_ptr</span>&lt;<span style="color:#000">string</span>&gt; (<span style="color:#00f">new</span> <span style="color:#000">string</span>(<span style="color:#5a2">&#34;four&#34;</span>)),
+        <span style="color:#000">shared_ptr</span>&lt;<span style="color:#000">string</span>&gt; (<span style="color:#00f">new</span> <span style="color:#000">string</span>(<span style="color:#5a2">&#34;five&#34;</span>))
+    };
+    <span style="color:#000">shared_ptr</span>&lt;<span style="color:#000">string</span>&gt; <span style="color:#000">pwin</span>;
+    <span style="color:#000">pwin</span> = <span style="color:#000">films</span>[<span style="color:#3af">2</span>];
+
+    <span style="color:#000">cout</span> &lt;&lt; <span style="color:#5a2">&#34;films data is: &#34;</span> &lt;&lt; <span style="color:#000">endl</span>;
+    <span style="color:#00f">for</span>(<span style="color:#000">shared_ptr</span>&lt;<span style="color:#000">string</span>&gt; <span style="color:#000">s</span> : <span style="color:#000">films</span>)
+        <span style="color:#000">cout</span> &lt;&lt; *<span style="color:#000">s</span> &lt;&lt; <span style="color:#000">endl</span>;
+    <span style="color:#000">cout</span> &lt;&lt; <span style="color:#5a2">&#34;pwin: &#34;</span> &lt;&lt; *<span style="color:#000">pwin</span> &lt;&lt; <span style="color:#000">endl</span>;
+
+    <span style="color:#00f">return</span> <span style="color:#3af">0</span>;
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>其输出如下：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#000">films</span> <span style="color:#000">data</span> <span style="color:#000">is</span>:
+<span style="color:#000">one</span>
+<span style="color:#000">two</span>
+<span style="color:#000">three</span>
+<span style="color:#000">four</span>
+<span style="color:#000">five</span>
+<span style="color:#000">pwin</span>: <span style="color:#000">three</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>这次pwin和films[2]指向同一个对象，而引用计数从1增加到2。在程序末尾，后声明的pwin首先调用其析构函数，该析构函数将引用计数降低到1。然后，shared_ptr数组的成员被释放，对films[2]调用析构函数时，将引用计数降低到0，并释放以前分配的空间。</p>
+<h3 id="3-如果使用unique_ptr替换auto_ptr">3 如果使用unique_ptr替换auto_ptr</h3>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#888;font-style:italic">#include</span> <span style="color:#888;font-style:italic">&lt;iostream&gt;</span><span style="color:#888;font-style:italic">
+</span><span style="color:#888;font-style:italic">#include</span> <span style="color:#888;font-style:italic">&lt;string&gt;</span><span style="color:#888;font-style:italic">
+</span><span style="color:#888;font-style:italic">#include</span> <span style="color:#888;font-style:italic">&lt;memory&gt;</span><span style="color:#888;font-style:italic">
+</span><span style="color:#888;font-style:italic"></span>
+<span style="color:#00f">using</span> <span style="color:#00f">namespace</span> <span style="color:#000">std</span>;
+
+<span style="color:#00f">int</span> <span style="color:#000">main</span>()
+{
+    <span style="color:#000">unique_ptr</span>&lt;<span style="color:#000">string</span>&gt; <span style="color:#000">films</span>[<span style="color:#3af">5</span>] =
+    {
+        <span style="color:#000">unique_ptr</span>&lt;<span style="color:#000">string</span>&gt; (<span style="color:#00f">new</span> <span style="color:#000">string</span>(<span style="color:#5a2">&#34;one&#34;</span>)),
+        <span style="color:#000">unique_ptr</span>&lt;<span style="color:#000">string</span>&gt; (<span style="color:#00f">new</span> <span style="color:#000">string</span>(<span style="color:#5a2">&#34;two&#34;</span>)),
+        <span style="color:#000">unique_ptr</span>&lt;<span style="color:#000">string</span>&gt; (<span style="color:#00f">new</span> <span style="color:#000">string</span>(<span style="color:#5a2">&#34;three&#34;</span>)),
+        <span style="color:#000">unique_ptr</span>&lt;<span style="color:#000">string</span>&gt; (<span style="color:#00f">new</span> <span style="color:#000">string</span>(<span style="color:#5a2">&#34;four&#34;</span>)),
+        <span style="color:#000">unique_ptr</span>&lt;<span style="color:#000">string</span>&gt; (<span style="color:#00f">new</span> <span style="color:#000">string</span>(<span style="color:#5a2">&#34;five&#34;</span>))
+    };
+    <span style="color:#000">unique_ptr</span>&lt;<span style="color:#000">string</span>&gt; <span style="color:#000">pwin</span>;
+    <span style="color:#000">pwin</span> = <span style="color:#000">films</span>[<span style="color:#3af">2</span>];
+
+    <span style="color:#000">cout</span> &lt;&lt; <span style="color:#5a2">&#34;films data is: &#34;</span> &lt;&lt; <span style="color:#000">endl</span>;
+    <span style="color:#00f">for</span>(<span style="color:#000">unique_ptr</span>&lt;<span style="color:#000">string</span>&gt; <span style="color:#000">s</span> : <span style="color:#000">films</span>)
+        <span style="color:#000">cout</span> &lt;&lt; *<span style="color:#000">s</span> &lt;&lt; <span style="color:#000">endl</span>;
+    <span style="color:#000">cout</span> &lt;&lt; <span style="color:#5a2">&#34;pwin: &#34;</span> &lt;&lt; *<span style="color:#000">pwin</span> &lt;&lt; <span style="color:#000">endl</span>;
+
+    <span style="color:#00f">return</span> <span style="color:#3af">0</span>;
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>则程序将在下述代码行出现编译错误。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#000">pwin</span> = <span style="color:#000">films</span>[<span style="color:#3af">2</span>];  <span style="color:#888;font-style:italic">// films[2] lose ownership
+</span></code></pre></td></tr></table>
+</div>
+</div>
+        </div>
+
+        
+<div class="post-archive">
+    <ul class="post-copyright">
+        <li><strong>原文作者：</strong><a rel="author" href="https://devhg-blog.web.app">devhg</a></li>
+        <li style="word-break:break-all"><strong>原文链接：</strong><a href="https://devhg-blog.web.app/c&#43;&#43;/smart-pointer.html">https://devhg-blog.web.app/c&#43;&#43;/smart-pointer.html</a></li>
+        <li><strong>版权声明：</strong>本作品采用<a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li>
+    </ul>
+</div>
+<br/>
+
+
+
+        
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="/post/c&#43;&#43;/%E5%8F%B3%E5%80%BC%E5%BC%95%E7%94%A8/">右值引用</a></li>
+        
+        <li><a href="/about/">关于我</a></li>
+        
+        <li><a href="/archives/">归档</a></li>
+        
+        <li><a href="/search/">搜索</a></li>
+        
+    </ul>
+</div>
+
+
+        <div class="post-meta meta-tags">
+            
+            <ul class="clearfix">
+                
+                <li><a href='/tags/c&#43;&#43;'>c&#43;&#43;</a></li>
+                
+            </ul>
+            
+        </div>
+    </article>
+    
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "yourdiscussshortname" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    
+    
+    <div class="post bg-white">
+      <script src="https://utteranc.es/client.js"
+            repo= "your github repo"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+      </script>
+    </div>
+    
+</div>
+
+                    <footer id="footer">
+    <div>
+        &copy; 2021 <a href="https://devhg-blog.web.app">devhg&#39;s blog By devhg</a>
+        
+    </div>
+    <br />
+    <div>
+        <div class="github-badge">
+            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://www.flysnow.org/" target="_black"><span class="badge-subject">Design by</span><span class="badge-value bg-brightgreen">飞雪无情</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+        </div>
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
+
+    <script src='/js/douban.js'></script>
+
+                </div>
+
+                <div id="secondary">
+    <section class="widget">
+        <form id="search" action='https://devhg-blog.web.app/search/' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="https://devhg-blog.web.app">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="https://devhg-blog.web.app/c&#43;&#43;/smart-pointer.html" title="Smart Pointer">Smart Pointer</a>
+    </li>
+    
+    <li>
+        <a href="https://devhg-blog.web.app/post/c&#43;&#43;/%E5%8F%B3%E5%80%BC%E5%BC%95%E7%94%A8/" title="右值引用">右值引用</a>
+    </li>
+    
+</ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='/categories/'>分类</a></h3>
+<ul class="widget-list">
+    
+    <li><a href="https://devhg-blog.web.app/categories/c&#43;&#43;/">c&#43;&#43; (2)</a></li>
+    
+</ul>
+    </section>
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='/tags/'>标签</a></h3>
+<div class="tagcloud">
+    
+    <a href="https://devhg-blog.web.app/tags/c&#43;&#43;/">c&#43;&#43;</a>
+    
+</div>
+    </section>
+
+    
+<section class="widget">
+    <h3 class="widget-title">友情链接</h3>
+    <ul class="widget-list">
+        
+        <li>
+            <a target="_blank" href="https://www.yuque.com/devhg" title="其他博客">我的语雀</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://www.cnblogs.com/devhg" title="cnblogs">我的cnblogs</a>
+        </li>
+        
+    </ul>
+</section>
+
+
+    <section class="widget">
+        <h3 class="widget-title">其它</h3>
+        <ul class="widget-list">
+            <li><a href="https://devhg-blog.web.app/index.xml">文章 RSS</a></li>
+        </ul>
+    </section>
+</div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

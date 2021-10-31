@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on devhg&#39;s blog</title>
+    <link>https://devhg-blog.web.app/post/</link>
+    <description>Recent content in Posts on devhg&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Sun, 31 Oct 2021 15:33:30 +0800</lastBuildDate><atom:link href="https://devhg-blog.web.app/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Smart Pointer</title>
+      <link>https://devhg-blog.web.app/c&#43;&#43;/smart-pointer.html</link>
+      <pubDate>Sun, 31 Oct 2021 15:33:30 +0800</pubDate>
+      
+      <guid>https://devhg-blog.web.app/c&#43;&#43;/smart-pointer.html</guid>
+      <description>智能指针auto_ptr、unique_ptr、shared_ptr区别 模板auto_ptr是C++98提供的解决方案，C++11已摒弃。 模板unique_ptr、shared_ptr是C++11提供的解决方案. 为什么要摒弃auto_ptr呢？ 先来看下面的赋值语句： 1 2 3 auto_ptr&amp;lt;string&amp;gt; ps(new string(&amp;#34;I am</description>
+    </item>
+    
+    <item>
+      <title>右值引用</title>
+      <link>https://devhg-blog.web.app/post/c&#43;&#43;/%E5%8F%B3%E5%80%BC%E5%BC%95%E7%94%A8/</link>
+      <pubDate>Thu, 30 Sep 2021 14:37:54 +0800</pubDate>
+      
+      <guid>https://devhg-blog.web.app/post/c&#43;&#43;/%E5%8F%B3%E5%80%BC%E5%BC%95%E7%94%A8/</guid>
+      <description>一文读懂C++右值引用和std::move C++11引入了右值引用，有一定的理解成本，工作中发现不少同事对右值引用理解不深，认为右值引用性能更高等等。本文从实用角度出发，用尽量通俗易懂的语言讲清左右值引用的原理，性能分析及其应用场景，帮助大家在日常编程中用好右值引用和std::m</description>
+    </item>
+    
+  </channel>
+</rss>

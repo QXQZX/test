@@ -1,4 +1,4 @@
-baseURL = "https://www.ihui.ink"
+baseURL = "https://devhg-blog.web.app"
 languageCode = "zh-CN"
 title = "devhg's blog"
 theme = "maupassant"
