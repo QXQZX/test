@@ -89,6 +89,18 @@ disqusShortname = ""  ## 是否开启disqus评论，不要和utteranc同时开�
 #     weight = 2
 
   [[menu.main]]
+    identifier = "categories"
+    name = "分类"
+    url = "/categories/"
+    weight = 2
+
+  [[menu.main]]
+    identifier = "tags"
+    name = "标签"
+    url = "/tags/"
+    weight = 2
+
+  [[menu.main]]
     identifier = "archives"
     name = "归档"
     url = "/archives/"
