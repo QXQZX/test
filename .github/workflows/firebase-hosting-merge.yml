@@ -23,7 +23,7 @@ jobs:
           # extended: true
       
       - name: generate
-        run: hugo
+        run: cp -r images/ static/ && hugo
 
       - name: Setup firebase
         uses: FirebaseExtended/action-hosting-deploy@v0
