@@ -1,7 +1,7 @@
 ---
 title: 'Go内存释放'
-tags: ["go"]
-categories: ["go"]
+tags: ["Go"]
+categories: ["Go"]
 date: "2021-10-31T20:04:56+08:00"
 toc: false
 draft: false
