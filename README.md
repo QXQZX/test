@@ -14,3 +14,5 @@ support by
 ### go
 * [aotmic.Value](content/post/go/aotmic.Value.md)
 * [memory-free](content/post/go/memory-free.md)
+### mysql
+* [innodb-mutex](content/post/mysql/innodb-mutex.md)
