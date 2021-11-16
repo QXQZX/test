@@ -6,8 +6,8 @@
 # github action
 
 # push
-go run main.go
-echo "README索引生成完毕."
+# go run main.go
+# echo "README索引生成完毕."
 
 git status
 

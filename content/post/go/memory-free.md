@@ -1,5 +1,5 @@
 ---
-title: 'Go内存释放'
+title: 'Go语言之 内存是如何释放的？'
 tags: ["Go"]
 categories: ["Go"]
 date: "2021-10-31T20:04:56+08:00"
