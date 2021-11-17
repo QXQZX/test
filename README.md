@@ -19,3 +19,4 @@ support by
 
 ### Kafka
 * [Kafka(Go)系列(一)---通过docker-compose 安装 Kafka](content/post/kafka/01-kafka-install.md)
+* [Kafka(Go)系列(二)---Producer-Consumer API 基本使用](content/post/kafka/02-kafka-use.md)
