@@ -97,6 +97,21 @@ services:
 
 
 
+KAFKA_CFG_前缀表示kafka的配置，下面是几个配置的作用
+
+- **listeners**：学名叫监听器，其实就是告诉外部连接者要通过什么协议访问指定主机名和端口开放的 Kafka 服务。
+- **advertised.listeners**：和 listeners 相比多了个 advertised。Advertised 的含义表示宣称的、公布的，就是说这组监听器是 Broker 用于对外发布的。
+
+
+
+监听器它是若干个逗号分隔的三元组，每个三元组的格式为`<协议名称，主机名，端口号>`。
+
+这里的协议名称可能是标准的名字，比如 PLAINTEXT 表示明文传输、SSL 表示使用 SSL 或 TLS 加密传输等；也可能是你自己定义的协议名字。`CLIENT:PLAINTEXT,EXTERNAL:PLAINTEXT`。
+
+一旦你自己定义了协议名称，你必须还要指定`listener.security.protocol.map`参数告诉这个协议底层使用了哪种安全协议，比如上面指定`CLIENT:PLAINTEXT,EXTERNAL:PLAINTEXT`为两个不同的协议，并且在`listeners`和`advertised.listeners`分别进行了配置，其中`KAFKA_INTER_BROKER_LISTENER_NAME=CLIENT`，这个自定义协议底层使用与内部broker通信。
+
+
+
 ### 镜像
 
 在 dockerhub 上 kafka 相关镜像有 `wurstmeister/kafka` 和 `bitnami/kafka` 这两个用的人比较多,大概看了下 `bitnami/kafka` 更新比较频繁所以就选这个了。
