@@ -1,5 +1,5 @@
 ---
-title: 'Kafka(Go)系列(一)---通过docker-compose 安装 Kafka'
+title: 'Kafka(Go)系列(二)---通过docker-compose 安装 Kafka'
 tags: ["Kafka"]
 categories: ["Kafka"]
 date: "2021-11-16T20:59:49+08:00"
