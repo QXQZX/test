@@ -18,5 +18,9 @@ support by
 * [MySQL系列 Innodb锁机制Next-key lock实践](content/post/mysql/innodb-mutex.md)
 
 ### Kafka
-* [Kafka(Go)系列(一)---通过docker-compose 安装 Kafka](content/post/kafka/01-kafka-install.md)
-* [Kafka(Go)系列(二)---Producer-Consumer API 基本使用](content/post/kafka/02-kafka-use.md)
+* [Kafka(Go)系列(一)---初识 Kafka 架构和基本概念](content/post/kafka/00-kafka-know.md)
+* [Kafka(Go)系列(二)---通过docker-compose 安装 Kafka](content/post/kafka/01-kafka-install.md)
+* [Kafka(Go)系列(三)---Producer-Consumer API 基本使用](content/post/kafka/02-kafka-use.md)
+
+### 系统架构
+* [系统架构系列(一)---常见限流算法GO语言实现](content/post/systemarch/00-limiter-algo.md)
