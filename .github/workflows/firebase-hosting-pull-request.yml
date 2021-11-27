@@ -21,7 +21,7 @@ jobs:
           # extended: true
 
       - name: Generate
-        run: cp -r images website/static/ && cp -r article website/content/post/ && hugo
+        run: cp -r images website/static/ && cp -r article website/content/post/ && cd website && hugo
 
       - name: Setup firebase
         uses: FirebaseExtended/action-hosting-deploy@v0
