@@ -1,4 +1,5 @@
-baseURL = "https://devhg-blog.web.app"
+# baseURL = "https://devhg-blog.web.app"
+baseURL = "https://ihui.ink"
 languageCode = "zh-CN"
 title = "devhg's blog"
 theme = "maupassant"
@@ -78,6 +79,11 @@ disqusShortname = ""  ## 是否开启disqus评论，不要和utteranc同时开�
   [markup.highlight]
     lineNos = true
     style = "abap"
+
+  [markup.tableOfContents]
+    endLevel = 5
+    startLevel = 2
+
 
 ## 配置网站菜单
 
