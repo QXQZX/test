@@ -83,6 +83,9 @@ disqusShortname = ""  ## 是否开启disqus评论，不要和utteranc同时开�
   [markup.tableOfContents]
     endLevel = 5
     startLevel = 2
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
 
 
 ## 配置网站菜单

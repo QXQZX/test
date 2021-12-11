@@ -16,7 +16,8 @@ support by
 * [Go语言之 atomic.Value如何不加锁保证数据线程安全？](article/go/aotmic.Value.md)
 * [Go语言之 内存是如何释放的？](article/go/memory-free.md)
 ### MySQL
-* [MySQL系列 Innodb锁机制Next-key lock实践](article/mysql/innodb-mutex.md)
+* [MySQL系列(一)--Innodb锁机制Next-key lock实践](article/mysql/01-innodb-mutex.md)
+* [MySQL系列(二)--Innodb幻读问题解决](article/mysql/02-解决幻读问题.md)
 
 ### Kafka
 * [Kafka(Go)系列(一)---初识 Kafka 架构和基本概念](article/kafka/00-kafka-know.md)
