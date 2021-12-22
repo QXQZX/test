@@ -91,4 +91,16 @@ CRI 是指符合容器运行时标准的容器运行时引擎，比如docker，c
 
 
 
+## 3. 基本概念总览
+
+
+
+![img](/images/k8s/k8s-01-2.png)
+
+
+
+![img](/images/k8s/k8s-01-3.png)
+
+
+
 * https://www.bilibili.com/video/BV19F411b7NN
