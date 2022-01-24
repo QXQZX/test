@@ -341,3 +341,4 @@ networks:
 ## 其他参考资料
 
 docker容器如何与宿主机通信 https://www.cnblogs.com/koushr/p/14559481.html
+docker-compose的网络networks的使用技巧 https://zhuanlan.zhihu.com/p/382779160
