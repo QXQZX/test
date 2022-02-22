@@ -5,7 +5,6 @@ support by
 * [utteranc](https://utteranc.es)
 * [firebase](https://firebase.google.com)
 
-
 ## Index
 
 ### C++
