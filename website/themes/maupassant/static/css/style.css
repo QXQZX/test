@@ -394,7 +394,11 @@ textarea {
     border-radius: 3px;
 }
 .post-content p {
-    margin:0 0 1em;
+    margin:.7em 0;
+}
+
+.post-content ul li p {
+    margin: 0 0 .5em;
 }
 .post-content img {
     padding:1em 0;
