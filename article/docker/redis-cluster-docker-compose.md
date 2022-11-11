@@ -1,7 +1,7 @@
 ---
 title: '安装部署系列(一)-- Docker Compose安装redis-cluster集群'
 tags: ['docker', 'Redis']
-categories: ['devops']
+categories: ['Devops']
 date: "2022-01-24T13:27:17+08:00"
 toc: true
 draft: false

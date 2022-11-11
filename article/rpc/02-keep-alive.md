@@ -1,5 +1,5 @@
 ---
-title: 'RPC学习系列(一)--对RPC长连接维护的理解'
+title: 'RPC学习系列(二)--对RPC长连接维护的理解'
 tags: ["RPC"]
 categories: ["RPC"]
 date: "2022-04-04T09:24:33+08:00"

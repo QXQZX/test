@@ -4,7 +4,7 @@ tags: ["Go"]
 categories: ["Go"]
 date: "2021-12-23T15:04:50+08:00"
 toc: true
-draft: true
+draft: false
 ---
 
 go语言以并发作为其特性之一，并发必然会带来对于资源的竞争，这时候我们就需要使用go提供的`sync.Mutex`这把互斥锁来保证临界资源的访问互斥。

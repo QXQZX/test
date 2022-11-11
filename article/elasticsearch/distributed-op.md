@@ -1,7 +1,7 @@
 ---
-title: 'elasticsearch系列(一)---分布式增删查改过程原理'
-tags: ['elasticsearch']
-categories: ['elasticsearch']
+title: 'ES系列(一)---分布式增删查改过程原理'
+tags: ['ES']
+categories: ['ES']
 date: "2021-12-10T20:01:11+08:00"
 toc: true
 draft: false

@@ -1,7 +1,7 @@
 ---
 title: '系统架构系列(一)---常见限流算法GO语言实现'
-tags: ["系统架构"]
-categories: ["系统架构"]
+tags: ["Arch"]
+categories: ["Arch"]
 date: "2021-11-22T22:47:23+08:00"
 toc: true
 draft: false
